@@ -1,7 +1,7 @@
 {
-  "name": "tinymce-plugin-calendar",
+  "name": "tinymce-custom-component",
   "version": "1.0.0",
-  "description": "A TinyMCE plugin that inserts a formatted date and time using a calendar/time picker",
+  "description": "A TinyMCE plugins",
   "main": "dist/index.js",
   "module": "dist/index.js",
   "types": "dist/index.d.ts",
