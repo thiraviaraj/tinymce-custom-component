@@ -1,0 +1,33 @@
+{
+  "name": "tinymce-plugin-calendar",
+  "version": "1.0.0",
+  "description": "A TinyMCE plugin that inserts a formatted date and time using a calendar/time picker",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist/"
+  ],
+  "scripts": {
+    "build": "rollup -c",
+    "prepare": "npm run build"
+  },
+  "keywords": [
+    "tinymce",
+    "plugin",
+    "calendar",
+    "datepicker"
+  ],
+  "author": "Thiraviaraj",
+  "license": "MIT",
+  "peerDependencies": {
+    "tinymce": ">=5.0.0"
+  },
+  "devDependencies": {
+    "@rollup/plugin-commonjs": "^28.0.6",
+    "@rollup/plugin-node-resolve": "^16.0.1",
+    "rollup": "^3.0.0",
+    "rollup-plugin-import-css": "^4.0.1"
+  },
+  "type": "module"
+}

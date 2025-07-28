@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TinyMCE Custom Async Component Demo</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tinymce/6.7.2/tinymce.min.js"></script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f8f9fa;
+        }
+
+        .demo-container {
+            background: white;
+            border-radius: 8px;
+            padding: 30px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .demo-header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        .demo-header h1 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .demo-header p {
+            color: #6c757d;
+            font-size: 16px;
+        }
+
+        .feature-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .feature-item {
+            background: #e8f4f8;
+            padding: 15px;
+            border-radius: 6px;
+            border-left: 4px solid #0066cc;
+        }
+
+        .feature-item h4 {
+            margin: 0 0 8px 0;
+            color: #2c3e50;
+        }
+
+        .feature-item p {
+            margin: 0;
+            font-size: 14px;
+            color: #6c757d;
+        }
+
+        .editor-container {
+            margin: 30px 0;
+        }
+
+        .controls-panel {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 6px;
+            margin: 20px 0;
+        }
+
+        .controls-panel h3 {
+            margin-top: 0;
+            color: #2c3e50;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+
+        .demo-button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .demo-button.primary {
+            background: #0066cc;
+            color: white;
+        }
+
+        .demo-button.primary:hover {
+            background: #0052a3;
+        }
+
+        .demo-button.secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .demo-button.secondary:hover {
+            background: #545b62;
+        }
+
+        .demo-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .status-panel {
+            background: #e8f4f8;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 20px 0;
+            border: 1px solid #bee5eb;
+        }
+
+        .status-panel h4 {
+            margin: 0 0 10px 0;
+            color: #0c5460;
+        }
+
+        .status-item {
+            margin: 5px 0;
+            font-size: 14px;
+        }
+
+        .status-value {
+            font-weight: bold;
+            color: #0c5460;
+        }
+
+        .content-preview {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            padding: 15px;
+            margin: 20px 0;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .content-preview h4 {
+            margin: 0 0 10px 0;
+            color: #2c3e50;
+        }
+
+        .content-preview-content {
+            background: white;
+            padding: 15px;
+            border-radius: 4px;
+            border: 1px solid #e9ecef;
+            min-height: 100px;
+        }
+
+        .loading-indicator {
+            display: none;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            background: rgba(0, 102, 204, 0.1);
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+
+        .loading-indicator.active {
+            display: flex;
+        }
+
+        .spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #0066cc;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .log-panel {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .log-panel h4 {
+            margin: 0 0 10px 0;
+            color: #ecf0f1;
+            font-family: inherit;
+        }
+
+        .log-entry {
+            margin: 2px 0;
+            padding: 2px 0;
+        }
+
+        .log-entry.success {
+            color: #2ecc71;
+        }
+
+        .log-entry.error {
+            color: #e74c3c;
+        }
+
+        .log-entry.info {
+            color: #3498db;
+        }
+
+        .log-entry.warning {
+            color: #f39c12;
+        }
+
+        .plugin-status {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 6px;
+            text-align: center;
+        }
+
+        .plugin-status.loaded {
+            background: #d4edda;
+            border-color: #c3e6cb;
+            color: #155724;
+        }
+
+        .plugin-status.error {
+            background: #f8d7da;
+            border-color: #f5c6cb;
+            color: #721c24;
+        }
+    </style>
+</head>
+<body>
+    <div class="demo-container">
+        <div class="demo-header">
+            <h1>🚀 TinyMCE Custom Async Component Demo</h1>
+            <p>Advanced custom UI component with async operations, button state management, and dropdown selection</p>
+        </div>
+
+        <div class="plugin-status" id="pluginStatus">
+            <strong>⏳ Loading plugin...</strong> Make sure index.js is in the same directory as this HTML file.
+        </div>
+
+        <div class="feature-list">
+            <div class="feature-item">
+                <h4>🔄 Async Operations</h4>
+                <p>Performs API calls with loading states and proper error handling</p>
+            </div>
+            <div class="feature-item">
+                <h4>🎛️ Smart Button States</h4>
+                <p>Buttons disable during operations and show loading indicators</p>
+            </div>
+            <div class="feature-item">
+                <h4>📋 Dropdown Selection</h4>
+                <p>Multiple action types with contextual icons and descriptions</p>
+            </div>
+            <div class="feature-item">
+                <h4>📦 NPM Package Ready</h4>
+                <p>Separated plugin code ready for npm publishing and reuse</p>
+            </div>
+        </div>
+
+        <div class="loading-indicator" id="globalLoader">
+            <div class="spinner"></div>
+            <span>Processing async operation...</span>
+        </div>
+
+        <div class="editor-container">
+            <textarea id="demoEditor">
+                <h2>Welcome to the TinyMCE Custom Component Demo!</h2>
+                <p>This editor includes a custom async component from the external index.js plugin. Here's what you can do:</p>
+                <ul>
+                    <li><strong>Click the "🔄 Async Actions" button</strong> - Opens a dropdown with different operations</li>
+                    <li><strong>Select an action</strong> - Each performs a different simulated async operation</li>
+                    <li><strong>Watch the states</strong> - See how buttons disable during async operations</li>
+                    <li><strong>Check the logs</strong> - Monitor all component activities</li>
+                    <li><strong>Include index.js</strong> - Make sure the external plugin file is in the same directory</li>
+                </ul>
+                <p>Try selecting some text and then using the custom component to see how it interacts with your selection!</p>
+                <blockquote>
+                    <p><em>The component simulates real API calls with mock responses. This demo loads the plugin from the external index.js file, demonstrating how to use it as an npm package.</em></p>
+                </blockquote>
+            </textarea>
+        </div>
+
+        <div class="controls-panel">
+            <h3>Demo Controls</h3>
+            <div class="button-group">
+                <button class="demo-button primary" onclick="insertSampleContent()">
+                    Insert Sample Content
+                </button>
+                <button class="demo-button primary" onclick="getEditorContent()">
+                    Get Content
+                </button>
+                <button class="demo-button secondary" onclick="clearEditor()">
+                    Clear Editor
+                </button>
+                <button class="demo-button secondary" onclick="focusEditor()">
+                    Focus Editor
+                </button>
+                <button class="demo-button secondary" onclick="toggleLogs()">
+                    Toggle Logs
+                </button>
+            </div>
+        </div>
+
+        <div class="status-panel">
+            <h4>Component Status</h4>
+            <div class="status-item">
+                Loading: <span class="status-value" id="loadingStatus">false</span>
+            </div>
+            <div class="status-item">
+                Selected Option: <span class="status-value" id="selectedOption">None</span>
+            </div>
+            <div class="status-item">
+                Last Action: <span class="status-value" id="lastAction">None</span>
+            </div>
+            <div class="status-item">
+                Actions Count: <span class="status-value" id="actionsCount">0</span>
+            </div>
+        </div>
+
+        <div class="content-preview">
+            <h4>Live Content Preview</h4>
+            <div class="content-preview-content" id="contentPreview">
+                Content will appear here as you edit...
+            </div>
+        </div>
+
+        <div class="log-panel" id="logPanel" style="display: none;">
+            <h4>Activity Log</h4>
+            <div id="logEntries"></div>
+        </div>
+    </div>
+
+    <script>
+        // Global state for demo
+        let componentState = {
+            loading: false,
+            selectedOption: 'None',
+            lastAction: 'None',
+            actionsCount: 0
+        };
+
+        // Logging utility
+        function log(message, type = 'info') {
+            const logEntries = document.getElementById('logEntries');
+            const entry = document.createElement('div');
+            entry.className = `log-entry ${type}`;
+            entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            logEntries.appendChild(entry);
+            logEntries.scrollTop = logEntries.scrollHeight;
+        }
+
+        // Update status display
+        function updateStatus() {
+            document.getElementById('loadingStatus').textContent = componentState.loading;
+            document.getElementById('selectedOption').textContent = componentState.selectedOption;
+            document.getElementById('lastAction').textContent = componentState.lastAction;
+            document.getElementById('actionsCount').textContent = componentState.actionsCount;
+        }
+
+        // Update plugin status display
+        function updatePluginStatus(status, message) {
+            const statusEl = document.getElementById('pluginStatus');
+            statusEl.className = `plugin-status ${status}`;
+            statusEl.innerHTML = message;
+        }
+
+        // Load the external plugin (simulating the npm package)
+        // In a real scenario, you would: import TinyMCEAsyncComponent from 'tinymce-async-component';
+        // For this demo, we'll load it from a script tag or external file
+
+        // Configure the plugin with custom handlers and callbacks
+        function initializePlugin() {
+            const customPlugin = window.TinyMCEAsyncComponent ? 
+                window.TinyMCEAsyncComponent.createPlugin({
+                    buttonText: '🔄 Async Actions',
+                    buttonTooltip: 'Perform async operations with loading states',
+                    
+                    // Custom callbacks for demo integration
+                    onBeforeAction: function(actionType, selectedText, editor) {
+                        componentState.selectedOption = actionType;
+                        componentState.lastAction = actionType;
+                        componentState.actionsCount++;
+                        componentState.loading = true;
+                        updateStatus();
+                        document.getElementById('globalLoader').classList.add('active');
+                        log(`Starting ${actionType} operation...`, 'info');
+                    },
+                    
+                    onAfterAction: function(actionType, result, editor) {
+                        componentState.loading = false;
+                        updateStatus();
+                        document.getElementById('globalLoader').classList.remove('active');
+                        log(`${actionType} completed successfully`, 'success');
+                    },
+                    
+                    onError: function(error, actionType, editor) {
+                        componentState.loading = false;
+                        updateStatus();
+                        document.getElementById('globalLoader').classList.remove('active');
+                        log(`${actionType} failed: ${error.message}`, 'error');
+                    },
+                    
+                    onLog: function(message, type) {
+                        log(message, type);
+                    }
+                }) : 
+                // Fallback if the external plugin isn't loaded
+                function(editor, url) {
+                    log('External plugin not found, using fallback', 'warning');
+                    
+                    editor.ui.registry.addButton('asyncActions', {
+                        text: '🔄 Fallback',
+                        tooltip: 'Plugin not loaded - include index.js',
+                        onAction: function() {
+                            editor.insertContent('<p><em>❌ External plugin not loaded. Please include index.js in the same directory as this HTML file.</em></p>');
+                            log('Fallback button clicked - plugin not loaded', 'error');
+                        }
+                    });
+                    
+                    return { 
+                        getMetadata: function() { 
+                            return { name: 'Fallback Plugin', url: 'fallback' }; 
+                        } 
+                    };
+                };
+            
+            // Register the custom plugin
+            tinymce.PluginManager.add('customAsyncComponent', customPlugin);
+            
+            // Initialize TinyMCE with the custom plugin
+            tinymce.init({
+                selector: '#demoEditor',
+                height: 400,
+                plugins: 'customAsyncComponent lists link image table code help wordcount',
+                toolbar: 'asyncActions calendar | undo redo | styles | bold italic | alignleft aligncenter alignright | bullist numlist | link image | code help',
+                menubar: 'file edit view insert format tools table help',
+                content_style: 'body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }',
+                
+                setup: function(editor) {
+                    // Update content preview on content change
+                    editor.on('input change', function() {
+                        document.getElementById('contentPreview').innerHTML = editor.getContent();
+                    });
+                    
+                    // Initial content preview
+                    editor.on('init', function() {
+                        document.getElementById('contentPreview').innerHTML = editor.getContent();
+                        log('TinyMCE editor initialized with async component', 'success');
+                        
+                        // Final plugin status check
+                        if (window.TinyMCEAsyncComponent) {
+                            updatePluginStatus('loaded', '<strong>✅ Plugin loaded successfully!</strong> All features are available.');
+                        } else {
+                            updatePluginStatus('error', '<strong>❌ Plugin not loaded!</strong> Make sure index.js is in the same directory.');
+                        }
+                    });
+                }
+            });
+        }
+
+        // Demo control functions
+        function insertSampleContent() {
+            const editor = tinymce.get('demoEditor');
+            if (editor) {
+                const sampleContent = `
+                    <h3>Sample Content for Testing</h3>
+                    <p>This is some sample content that you can use to test the async components. Try selecting this text and using the "Process Selected Text" action.</p>
+                    <p>You can also test the other async operations like data fetching and content analysis.</p>
+                    <blockquote>
+                        <p>The async component demonstrates how to integrate complex, stateful operations into TinyMCE while maintaining good user experience with loading states and error handling.</p>
+                    </blockquote>
+                `;
+                editor.insertContent(sampleContent);
+                log('Sample content inserted', 'info');
+            }
+        }
+
+        function getEditorContent() {
+            const editor = tinymce.get('demoEditor');
+            if (editor) {
+                const content = editor.getContent();
+                console.log('Editor content:', content);
+                alert('Content logged to console. Check developer tools.');
+                log('Editor content retrieved', 'info');
+            }
+        }
+
+        function clearEditor() {
+            const editor = tinymce.get('demoEditor');
+            if (editor) {
+                editor.setContent('');
+                document.getElementById('contentPreview').innerHTML = '';
+                log('Editor content cleared', 'info');
+            }
+        }
+
+        function focusEditor() {
+            const editor = tinymce.get('demoEditor');
+            if (editor) {
+                editor.focus();
+                log('Editor focused', 'info');
+            }
+        }
+
+        function toggleLogs() {
+            const logPanel = document.getElementById('logPanel');
+            if (logPanel.style.display === 'none') {
+                logPanel.style.display = 'block';
+                log('Log panel shown', 'info');
+            } else {
+                logPanel.style.display = 'none';
+            }
+        }
+
+        // Initialize status display and check if external plugin loaded
+        updateStatus();
+        
+        // Check if the external plugin loaded successfully
+        setTimeout(function() {
+            if (window.TinyMCEAsyncComponent) {
+                log('External plugin detected, initializing...', 'success');
+                updatePluginStatus('loaded', '<strong>✅ Plugin detected!</strong> Initializing TinyMCE...');
+            } else {
+                log('External plugin (index.js) not found - will use fallback', 'warning');
+                updatePluginStatus('error', '<strong>⚠️ Plugin not found!</strong> Using fallback mode - include index.js for full functionality.');
+            }
+            
+            // Initialize the plugin regardless
+            initializePlugin();
+        }, 100);
+    </script>
+    
+    <!-- Include the external plugin -->
+    <script src="index.js"></script>
+    <script>
+        // Re-check plugin loading after script loads
+        setTimeout(function() {
+            if (window.TinyMCEAsyncComponent) {
+                log('✅ Plugin successfully loaded from index.js!', 'success');
+                console.log('TinyMCE Async Component Version:', window.TinyMCEAsyncComponent.version);
+            } else {
+                log('❌ Failed to load plugin from index.js', 'error');
+                console.error('Make sure index.js is in the same directory as demo.html');
+            }
+        }, 200);
+    </script>
+</body>
+</html>
