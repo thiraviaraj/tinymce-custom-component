@@ -1,4 +1,4 @@
-# TinyMCE Async Component Plugin
+# TinyMCE Async Component Plugin [![Deploy static content to Pages](https://github.com/thiraviaraj/tinymce-custom-component/actions/workflows/static.yml/badge.svg)](https://github.com/thiraviaraj/tinymce-custom-component/actions/workflows/static.yml)
 
 A customizable async component plugin for TinyMCE that provides dropdown actions with loading states, error handling, and extensible async operations.
 
