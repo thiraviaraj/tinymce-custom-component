@@ -3,9 +3,9 @@
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
-    "prestart": "node scripts/copy-plugin.js",
-    "start": "ng serve",
-    "build": "ng build",
+    "copy-plugin": "node scripts/copy-plugin.js",
+    "start": "npm run copy-plugin && ng serve",
+    "build": "npm run copy-plugin && ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test"
   },
