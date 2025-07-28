@@ -3,6 +3,7 @@
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
+    "prestart": "node scripts/copy-plugin.js",
     "start": "ng serve",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
@@ -30,6 +31,7 @@
     "flatpickr": "^4.6.13",
     "rxjs": "~7.8.0",
     "tinymce": "^7.9.1",
+    "tinymce-plugin-calendar": "^1.0.0",
     "tslib": "^2.3.0",
     "zone.js": "~0.15.0"
   },

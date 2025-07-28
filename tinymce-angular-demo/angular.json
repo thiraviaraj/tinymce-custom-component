@@ -29,8 +29,7 @@
               "src/styles.css"
             ],
             "scripts": [
-              "public/assets/plugins/asyncComponent.js",
-              "public/assets/plugins/calendar.js"
+              "public/assets/plugins/asyncComponent.js"
             ]
           },
           "configurations": {

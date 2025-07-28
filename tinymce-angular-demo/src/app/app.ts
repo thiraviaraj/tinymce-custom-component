@@ -24,7 +24,6 @@ export class AppComponent {
     content_style: 'body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }',
             
     external_plugins: {
-      calendar: '/assets/plugins/calendar.js',
       asyncComponent: '/assets/plugins/asyncComponent.js'
     },
     calendar_options: { format: 'Y-m-d H:i' },
